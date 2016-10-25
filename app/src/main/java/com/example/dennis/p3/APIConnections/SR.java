@@ -1,70 +1,102 @@
 package com.example.dennis.p3.APIConnections;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import android.app.IntentService;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.dennis.p3.Beans.SongBean;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Created by Dennis on 2016-10-24.
  */
 
-public class SR {
+public class SR extends IntentService{
+    private SongBean songBean;
+    private String uri = null;
 
-    public void startRadio(int channel) {
-
-        String baseUrl = "http://api.sr.se/api/v2/playlists/rightnow?channelid=" + channel + "&format=json";
-
-        HttpClient httpclient = null;
-        HttpGet httpGet = null;
-        HttpResponse response = null;
-        StatusLine status = null;
-        HttpEntity entity = null;
-        InputStream data = null;
-        Reader reader = null;
-
-        GsonBuilder builder = new GsonBuilder();
-        Gson json = builder.create();
-
-        try {
-            httpclient = HttpClients.createDefault();
-            httpGet = new HttpGet(baseUrl);
-
-            // Call the API and verify that all went well
-            response = httpclient.execute(httpGet);
-            status = response.getStatusLine();
-            if (status.getStatusCode() == 200) {
-                // All went well. Let's fetch the data
-                entity = response.getEntity();
-                data = entity.getContent();
-
-                try {
-
-                    reader = new InputStreamReader(data);
-//                    envelope = json.fromJson(reader, Envelope.class);
-//                    playlist = envelope.getPlaylist();
-
-//                    if (playlist.getSong() != null) {
-//                        printSong(playlist.getSong());
-//                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public SR() {
+        super("SR");
     }
 
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        songBean = new SongBean();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String baseUrl = "http://api.sr.se/api/v2/playlists/rightnow?channelid=2576&format=json";
 
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, baseUrl, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            songBean.setArtist(response.getJSONObject("playlist").getJSONObject("song").getString("artist"));
+                            songBean.setTitle(response.getJSONObject("playlist").getJSONObject("song").getString("title"));
+                            getSpotifyURI(songBean);
+
+                            Intent intent = new Intent("SongBroadCast");
+                            intent.putExtra("songBean", songBean);
+                            LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(intent);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println(error.toString());
+
+                    }
+                });
+        queue.add(jsObjRequest);
+    }
+
+    public SongBean getSpotifyURI(final SongBean songBean){
+        String title = null;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        try {
+            title = URLEncoder.encode(songBean.getTitle(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String baseUrl = "https://api.spotify.com/v1/search?query=" + title.replaceAll("\\s+","").toLowerCase() + "*&offset=0&limit=1&type=track";
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, baseUrl, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                            System.out.println(response.toString());
+                        try {
+                             uri = response.getJSONObject("tracks").getJSONArray("items").getJSONObject(0).getString("uri");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        songBean.setUri(uri);
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println(error.toString());
+
+                    }
+                });
+        queue.add(jsObjRequest);
+        return songBean;
+    }
 }

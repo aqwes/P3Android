@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">P3</string>
     <string name="title_activity_maps">Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
 </resources>
