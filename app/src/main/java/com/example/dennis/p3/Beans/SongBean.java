@@ -27,6 +27,9 @@ public class SongBean implements Parcelable {
     public void setUri(String uri) {this.uri = uri;}
     public String getUri() {return uri;}
 
+    public SongBean() {
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -39,16 +42,13 @@ public class SongBean implements Parcelable {
         dest.writeString(this.uri);
     }
 
-    public SongBean() {
-    }
-
     protected SongBean(Parcel in) {
         this.title = in.readString();
         this.artist = in.readString();
         this.uri = in.readString();
     }
 
-    public static final Parcelable.Creator<SongBean> CREATOR = new Parcelable.Creator<SongBean>() {
+    public static final Creator<SongBean> CREATOR = new Creator<SongBean>() {
         @Override
         public SongBean createFromParcel(Parcel source) {
             return new SongBean(source);

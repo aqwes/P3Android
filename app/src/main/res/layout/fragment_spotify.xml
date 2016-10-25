@@ -12,6 +12,16 @@
         android:layout_height="match_parent"
         android:background="@android:color/holo_blue_dark">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewArtist" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewTitle" />
+
         <Button
             android:text="@string/play"
             android:layout_width="match_parent"

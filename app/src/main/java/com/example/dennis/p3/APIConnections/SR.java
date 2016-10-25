@@ -24,8 +24,7 @@ import java.net.URLEncoder;
 
 public class SR extends IntentService{
     private SongBean songBean;
-    private String uri = null;
-
+    private String uri;
     public SR() {
         super("SR");
     }
@@ -42,18 +41,13 @@ public class SR extends IntentService{
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+
                             songBean.setArtist(response.getJSONObject("playlist").getJSONObject("song").getString("artist"));
                             songBean.setTitle(response.getJSONObject("playlist").getJSONObject("song").getString("title"));
-                            getSpotifyURI(songBean);
-
-                            Intent intent = new Intent("SongBroadCast");
-                            intent.putExtra("songBean", songBean);
-                            LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(intent);
-
+                            getSpotifyURI();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
                     }
                 }, new Response.ErrorListener() {
 
@@ -66,7 +60,7 @@ public class SR extends IntentService{
         queue.add(jsObjRequest);
     }
 
-    public SongBean getSpotifyURI(final SongBean songBean){
+    public void getSpotifyURI(){
         String title = null;
         RequestQueue queue = Volley.newRequestQueue(this);
         try {
@@ -74,19 +68,18 @@ public class SR extends IntentService{
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String baseUrl = "https://api.spotify.com/v1/search?query=" + title.replaceAll("\\s+","").toLowerCase() + "*&offset=0&limit=1&type=track";
+        String baseUrl = "https://api.spotify.com/v1/search?query=" + title.replaceAll("\\s+","").toLowerCase() + "&offset=0&limit=1&type=track";
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, baseUrl, null, new Response.Listener<JSONObject>() {
-
                     @Override
                     public void onResponse(JSONObject response) {
-                            System.out.println(response.toString());
                         try {
-                             uri = response.getJSONObject("tracks").getJSONArray("items").getJSONObject(0).getString("uri");
+                            saveData(response.getJSONObject("tracks").getJSONArray("items").getJSONObject(0).getString("uri").toString());
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        songBean.setUri(uri);
+
                     }
                 }, new Response.ErrorListener() {
 
@@ -96,7 +89,15 @@ public class SR extends IntentService{
 
                     }
                 });
+
         queue.add(jsObjRequest);
-        return songBean;
+
     }
+    public void saveData(String uri){
+        songBean.setUri(uri);
+        Intent intent = new Intent("SongBroadCast");
+        intent.putExtra("songBean", songBean);
+        LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(intent);
+    }
+
 }

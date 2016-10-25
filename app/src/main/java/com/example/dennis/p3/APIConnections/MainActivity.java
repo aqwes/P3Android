@@ -8,6 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -33,6 +35,8 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
     private static final String CLIENT_ID = "52dad81b594c4033b2cbaf90708eb517";
     private static final String REDIRECT_URI = "dennisspotify://callback";
     private SongBean songBean;
+    private SpotifyFragment spotifyFragment;
+    private static boolean firstConnect = true;
 
     private Player mPlayer;
 
@@ -46,11 +50,10 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
                 REDIRECT_URI);
         builder.setScopes(new String[]{"user-read-private", "streaming"});
         AuthenticationRequest request = builder.build();
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
-        SpotifyFragment spotifyFragment = new SpotifyFragment();
-        spotifyFragment.setMainactivty(this);
+        AuthenticationClient.openLoginActivity(MainActivity.this, REQUEST_CODE, request);
+        spotifyFragment = new SpotifyFragment();
+        spotifyFragment.setMainactivty(MainActivity.this);
         setFragment(spotifyFragment);
-
     }
 
     public void setFragment(Fragment fragment) {
@@ -66,14 +69,15 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
-                Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
+                Config playerConfig = new Config(MainActivity.this, response.getAccessToken(), CLIENT_ID);
+                Spotify.getPlayer(playerConfig, MainActivity.this, new Player.InitializationObserver() {
 
                     @Override
                     public void onInitialized(Player player) {
                         mPlayer = player;
                         mPlayer.addConnectionStateCallback(MainActivity.this);
                         mPlayer.addPlayerNotificationCallback(MainActivity.this);
+
                     }
 
                     @Override
@@ -94,13 +98,13 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
     @Override
     public void onLoggedIn() {
         Log.d("MainActivity", "User logged in");
+        mPlayer.play("spotify:track:2gFvRmQiWg9fN9i74Q0aiw");
     }
 
-    public void startSong(String song){
+    public void startSong(){
+
         Intent sr = new Intent(this, SR.class);
         startService(sr);
-
-        mPlayer.play(song);
     }
 
     public void stopSong(){
@@ -135,13 +139,32 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
     public void onPlaybackError(ErrorType errorType, String s) {
     }
 
+    @Override
+    public void onResume() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("SongBroadCast"));
+        super.onResume();
+    }
+
+
+
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
-        public synchronized void onReceive(Context context, Intent intent) {
-            LocalBroadcastManager.getInstance(getApplication()).registerReceiver(mMessageReceiver, new IntentFilter("SongBroadCast"));
-            songBean = intent.getParcelableExtra("songBean");
-            mPlayer.play(songBean.getUri());
-
+        public void onReceive(Context context, Intent intent) {
+            final ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            final NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+            if (activeNetInfo != null) {
+                songBean = intent.getParcelableExtra("songBean");
+                if(firstConnect) {
+                    System.out.println(songBean.getUri());
+                    mPlayer.play(songBean.getUri());
+                    spotifyFragment.setArtist(songBean.getArtist());
+                    spotifyFragment.setTitle(songBean.getTitle());
+                    firstConnect = false;
+                }
+            }
+            else {
+                firstConnect= true;
+            }
         }
+        };
     };
-}
