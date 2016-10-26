@@ -1,0 +1,125 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:background="@android:color/holo_blue_dark"
+             tools:context="com.example.dennis.p3.SRFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <TextView
+        android:text="@string/channels"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvChannelsTitle"
+        android:gravity="center"
+        android:layout_width="fill_parent"
+        android:textSize="24sp"
+        android:layout_marginTop="10dp"
+        android:textColor="@android:color/background_dark"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
+
+        <Button
+            android:text="@string/p1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP1"
+            android:layout_weight="1"/>
+
+        <Button
+            android:text="@string/p2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP2"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <Button
+            android:text="@string/p3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP3"
+            android:layout_weight="1"/>
+
+        <Button
+            android:text="@string/p4blekinge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP4Blekinge"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <Button
+            android:text="@string/p4dalarna"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP4Dalarna"
+            android:layout_weight="1"/>
+
+        <Button
+            android:text="@string/p4gotland"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP4Gotland"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <Button
+            android:text="@string/p4gavleborg"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP4Gävleborg"
+            android:layout_weight="1"/>
+
+        <Button
+            android:text="@string/p4goteborg"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP4Göteborg"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <Button
+            android:text="@string/p4halland"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP4Halland"
+            android:layout_weight="1"/>
+
+        <Button
+            android:text="@string/p4jamtland"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnP4Jämtland"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>
