@@ -18,6 +18,8 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import java.util.ArrayList;
+
 /**
  * Created by Dennis on 2016-10-24.
  */
@@ -93,6 +95,40 @@ public class SR extends IntentService{
         queue.add(jsObjRequest);
 
     }
+    
+    public void getSRChannelList() {
+        final ArrayList<ChannelBean> channelList = new ArrayList<ChannelBean>();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String baseUrl = "http://api.sr.se/api/v2/channels/?format=json";
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, baseUrl, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+
+                            for(int i = 0; i < 10; i++) {
+                                ChannelBean channelBean = new ChannelBean();
+                                channelBean.setId(Integer.parseInt(response.getJSONArray("channels").getJSONObject(i).getString("id")));
+                                channelBean.setName(response.getJSONArray("channels").getJSONObject(i).getString("name"));
+                                channelList.add(channelBean);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println(error.toString());
+
+                    }
+                });
+        queue.add(jsObjRequest);
+    }
+    
     public void saveData(String uri){
         songBean.setUri(uri);
         Intent intent = new Intent("SongBroadCast");
