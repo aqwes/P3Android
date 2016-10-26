@@ -6,4 +6,16 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="play">Play</string>
     <string name="stop">Stop</string>
+    
+    <string name="channels">Channels</string>
+    <string name="p1">P1</string>
+    <string name="p2">P2</string>
+    <string name="p3">P3</string>
+    <string name="p4blekinge">P4 Blekinge</string>
+    <string name="p4dalarna">P4 Dalarna</string>
+    <string name="p4gotland">P4 Gotland</string>
+    <string name="p4gavleborg">P4 Gävleborg</string>
+    <string name="p4goteborg">P4 Göteborg</string>
+    <string name="p4halland">P4 Halland</string>
+    <string name="p4jamtland">P4 Jämtland</string>
 </resources>
