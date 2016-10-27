@@ -107,7 +107,7 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
 
     @Override
     public void onBackPressed() {
-        finish();
+        System.exit(0);
     }
 
     @Override
