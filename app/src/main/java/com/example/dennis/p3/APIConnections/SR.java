@@ -1,10 +1,8 @@
 package com.example.dennis.p3.APIConnections;
 
-import android.app.AlertDialog;
 import android.app.IntentService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
@@ -30,7 +28,7 @@ import java.net.URLEncoder;
 public class SR extends IntentService {
     private SongBean songBean;
     private static boolean firstConnect = true;
-    private String oldChannel ="";
+    private String oldChannel = "";
     private Intent intent = new Intent("SongBroadCast");
 
     public SR() {
@@ -45,11 +43,11 @@ public class SR extends IntentService {
     }
 
     public void saveData(String uri, String imageurl) {
-            songBean.setUri(uri);
-            songBean.setImageUrl(imageurl);
-            intent.putExtra("songBean", songBean);
-            LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(intent);
-        }
+        songBean.setUri(uri);
+        songBean.setImageUrl(imageurl);
+        intent.putExtra("songBean", songBean);
+        LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(intent);
+    }
 
 
     public void saveArtistData(String description) {
@@ -73,7 +71,7 @@ public class SR extends IntentService {
                             getInfoFromLastFMboutArtist();
                         } catch (JSONException e) {
                             songBean.setError(true);
-                            saveData(null,null);
+                            saveData(null, null);
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -87,11 +85,11 @@ public class SR extends IntentService {
         queue.add(jsObjRequest);
     }
 
-    public void getInfoFromLastFMboutArtist(){
+    public void getInfoFromLastFMboutArtist() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String searchstring = songBean.getArtist().replaceAll("\\s+","%20");
+        String searchstring = songBean.getArtist().replaceAll("\\s+", "%20");
 
-        String baseUrl = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist="+ searchstring +"&api_key=ca2da1267f0c97e5fa4697c44a91220d&format=json";
+        String baseUrl = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + searchstring + "&api_key=ca2da1267f0c97e5fa4697c44a91220d&format=json";
 
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, baseUrl, null, new Response.Listener<JSONObject>() {
@@ -104,7 +102,7 @@ public class SR extends IntentService {
                             getSpotifyURI();
                         } catch (JSONException e) {
                             songBean.setError(true);
-                            saveData(null,null);
+                            saveData(null, null);
 
                         }
                     }
@@ -119,6 +117,7 @@ public class SR extends IntentService {
         queue.add(jsObjRequest);
 
     }
+
     public void getSpotifyURI() {
         String title = null;
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -137,9 +136,10 @@ public class SR extends IntentService {
 
                             saveData(response.getJSONObject("tracks").getJSONArray("items").getJSONObject(0).getString("uri").toString(),
                                     response.getJSONObject("tracks").getJSONArray("items").getJSONObject(0).getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url").toString()
-                                    );
+                            );
                         } catch (JSONException e) {
                             songBean.setError(true);
+                            saveData(null, null);
                             System.out.println(e);
 
                         }
@@ -160,12 +160,11 @@ public class SR extends IntentService {
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-                String channelNr = intent.getStringExtra("channel");
-            if(!oldChannel.contains(channelNr)) {
+            String channelNr = intent.getStringExtra("channel");
+            if (!oldChannel.contains(channelNr)) {
                 findSong(channelNr);
                 oldChannel = channelNr;
             }
         }
     };
 };
-

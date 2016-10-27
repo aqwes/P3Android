@@ -10,11 +10,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -25,13 +22,11 @@ import com.example.dennis.p3.Beans.SongBean;
 import com.example.dennis.p3.R;
 import com.example.dennis.p3.SRChannels;
 import com.example.dennis.p3.SpotifyFragment;
-import com.example.dennis.p3.Start.Main;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
-
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
@@ -49,7 +44,7 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
     private Intent sr;
     private Intent radiochannel;
     private Player mPlayer;
-    private  String oldValue = "";
+    private String oldValue = "";
     private boolean alreadyClicked;
     private MainActivity mainActivity = this;
     private boolean lock = false;
@@ -83,23 +78,23 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
-            if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                Config playerConfig = new Config(MainActivity.this, response.getAccessToken(), CLIENT_ID);
-                Spotify.getPlayer(playerConfig, MainActivity.this, new Player.InitializationObserver() {
+        AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
+        if (response.getType() == AuthenticationResponse.Type.TOKEN) {
+            Config playerConfig = new Config(MainActivity.this, response.getAccessToken(), CLIENT_ID);
+            Spotify.getPlayer(playerConfig, MainActivity.this, new Player.InitializationObserver() {
 
-                    @Override
-                    public void onInitialized(Player player) {
-                        mPlayer = player;
-                        mPlayer.addConnectionStateCallback(MainActivity.this);
-                        mPlayer.addPlayerNotificationCallback(MainActivity.this);
-                    }
+                @Override
+                public void onInitialized(Player player) {
+                    mPlayer = player;
+                    mPlayer.addConnectionStateCallback(MainActivity.this);
+                    mPlayer.addPlayerNotificationCallback(MainActivity.this);
+                }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
-                    }
-                });
+                @Override
+                public void onError(Throwable throwable) {
+                    Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
+                }
+            });
 
         }
     }
@@ -120,14 +115,14 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
         Log.d("MainActivity", "User logged in");
     }
 
-    public void startSong(int channel){
-        if (!alreadyClicked){
-    radiochannel.putExtra("channel", String.valueOf(SRChannels.channel[channel]));
-    LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(radiochannel);
+    public void startSong(int channel) {
+        if (!alreadyClicked) {
+            radiochannel.putExtra("channel", String.valueOf(SRChannels.channel[channel]));
+            LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(radiochannel);
         }
     }
 
-    public void stopSong(){
+    public void stopSong() {
         mPlayer.pause();
     }
 
@@ -165,16 +160,16 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
         super.onResume();
     }
 
-    public synchronized void setText(){
-            spotifyFragment.setArtist(songBean.getArtist());
-            spotifyFragment.setTitle(songBean.getTitle());
-            spotifyFragment.setDescription(songBean.getDescription());
-            new DownloadImageTask((ImageView) findViewById(R.id.imageView))
-                    .execute(songBean.getImageUrl());
-            System.out.println(songBean.getDescription());
-            mPlayer.play(songBean.getUri());
+    public synchronized void setText() {
+        spotifyFragment.setArtist(songBean.getArtist());
+        spotifyFragment.setTitle(songBean.getTitle());
+        spotifyFragment.setDescription(songBean.getDescription());
+        new DownloadImageTask((ImageView) findViewById(R.id.imageView))
+                .execute(songBean.getImageUrl());
+        mPlayer.play(songBean.getUri());
 
     }
+
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView bmImage;
 
@@ -197,8 +192,7 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
 
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
-        }
-    }
+        }}
 
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -233,11 +227,7 @@ public class MainActivity extends Activity implements PlayerNotificationCallback
             }
 
         }
-        };
-
+    };
     public void resumeSong() {
         mPlayer.resume();
-    }
-
-
-};
+    }};
