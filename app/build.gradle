@@ -34,11 +34,11 @@ dependencies {
     // This library handles authentication and authorization
     // This library handles music playback
     // All other dependencies for your app should also be here:
-    compile project(':spotify-auth-1.0.0-beta12')
-    compile project(':spotify-player-1.0.0-beta12')
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.android.volley:volley:1.0.0'
+    compile project(':spotify-auth-1.0.0-beta11')
+    compile project(':spotify-player-1.0.0-beta11')
 }
 
 

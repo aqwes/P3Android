@@ -1,39 +1,100 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBlue"
+    android:orientation="vertical"
     tools:context="com.example.dennis.p3.SpotifyFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
     <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5">
+
+            <Button
+                android:text="@string/play"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonplay"
+                android:textColor="#a6ada7"
+                android:background="@color/colorBlue" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srcCompat="@color/colorBlue"
+                android:id="@+id/imageView" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5">
+
+            <Button
+                android:text="@string/stop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonstop"
+                android:textColor="#a6ada7"
+                android:background="@color/colorBlue" />
+
+            <ListView
+                android:id="@+id/srList"
+                style="@style/AppTheme"
+                android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:theme="@style/AppTheme"
+                android:choiceMode="singleChoice"
+                android:listSelector="@android:color/darker_gray"
+                android:background="?attr/colorButtonNormal" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/holo_blue_dark">
+        android:layout_weight="0.5">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textViewArtist" />
+            android:id="@+id/textViewArtist"
+            android:textColor="#a6ada7"
+            android:textSize="20dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textViewTitle" />
+            android:id="@+id/textViewTitle"
+            android:textColor="#a6ada7"
+            android:textSize="20dp"/>
 
-        <Button
-            android:text="@string/play"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/buttonplay" />
-
-
-        <Button
-            android:text="@string/stop"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonstop" />
+            android:id="@+id/textViewDescription"
+            android:maxLines = "10"
+            android:scrollbars = "vertical"
+            android:textColor="#a6ada7"
+            android:textSize="16dp" />
     </LinearLayout>
 
-</FrameLayout>
+</LinearLayout>

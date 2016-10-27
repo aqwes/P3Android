@@ -1,7 +1,12 @@
 package com.example.dennis.p3.APIConnections;
 
+import android.app.AlertDialog;
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.android.volley.Request;
@@ -22,18 +27,39 @@ import java.net.URLEncoder;
  * Created by Dennis on 2016-10-24.
  */
 
-public class SR extends IntentService{
+public class SR extends IntentService {
     private SongBean songBean;
-    private String uri;
+    private static boolean firstConnect = true;
+    private String oldChannel ="";
+    private Intent intent = new Intent("SongBroadCast");
+
     public SR() {
         super("SR");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("radiochannel"));
         songBean = new SongBean();
+
+    }
+
+    public void saveData(String uri, String imageurl) {
+            songBean.setUri(uri);
+            songBean.setImageUrl(imageurl);
+            intent.putExtra("songBean", songBean);
+            LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(intent);
+        }
+
+
+    public void saveArtistData(String description) {
+        songBean.setDescription(description);
+    }
+
+    public void findSong(String channelNr) {
+
         RequestQueue queue = Volley.newRequestQueue(this);
-        String baseUrl = "http://api.sr.se/api/v2/playlists/rightnow?channelid=2576&format=json";
+        String baseUrl = "http://api.sr.se/api/v2/playlists/rightnow?channelid=" + channelNr + "&format=json";
 
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, baseUrl, null, new Response.Listener<JSONObject>() {
@@ -41,12 +67,13 @@ public class SR extends IntentService{
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-
                             songBean.setArtist(response.getJSONObject("playlist").getJSONObject("song").getString("artist"));
                             songBean.setTitle(response.getJSONObject("playlist").getJSONObject("song").getString("title"));
-                            getSpotifyURI();
+                            songBean.setError(false);
+                            getInfoFromLastFMboutArtist();
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            songBean.setError(true);
+                            saveData(null,null);
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -60,7 +87,39 @@ public class SR extends IntentService{
         queue.add(jsObjRequest);
     }
 
-    public void getSpotifyURI(){
+    public void getInfoFromLastFMboutArtist(){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String searchstring = songBean.getArtist().replaceAll("\\s+","%20");
+
+        String baseUrl = "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist="+ searchstring +"&api_key=ca2da1267f0c97e5fa4697c44a91220d&format=json";
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, baseUrl, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            saveArtistData(response.getJSONObject("artist").getJSONObject("bio").getString("summary"));
+                            songBean.setError(false);
+                            getSpotifyURI();
+                        } catch (JSONException e) {
+                            songBean.setError(true);
+                            saveData(null,null);
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        System.out.println(error.toString());
+
+                    }
+                });
+        queue.add(jsObjRequest);
+
+    }
+    public void getSpotifyURI() {
         String title = null;
         RequestQueue queue = Volley.newRequestQueue(this);
         try {
@@ -68,16 +127,21 @@ public class SR extends IntentService{
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String baseUrl = "https://api.spotify.com/v1/search?query=" + title.replaceAll("\\s+","").toLowerCase() + "&offset=0&limit=1&type=track";
+        String baseUrl = "https://api.spotify.com/v1/search?query=" + title.replaceAll("\\s+", "%20") + "&offset=0&limit=1&type=track";
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, baseUrl, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            saveData(response.getJSONObject("tracks").getJSONArray("items").getJSONObject(0).getString("uri").toString());
+                            songBean.setError(false);
 
+                            saveData(response.getJSONObject("tracks").getJSONArray("items").getJSONObject(0).getString("uri").toString(),
+                                    response.getJSONObject("tracks").getJSONArray("items").getJSONObject(0).getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url").toString()
+                                    );
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            songBean.setError(true);
+                            System.out.println(e);
+
                         }
 
                     }
@@ -91,13 +155,17 @@ public class SR extends IntentService{
                 });
 
         queue.add(jsObjRequest);
-
-    }
-    public void saveData(String uri){
-        songBean.setUri(uri);
-        Intent intent = new Intent("SongBroadCast");
-        intent.putExtra("songBean", songBean);
-        LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(intent);
     }
 
-}
+    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+                String channelNr = intent.getStringExtra("channel");
+            if(!oldChannel.contains(channelNr)) {
+                findSong(channelNr);
+                oldChannel = channelNr;
+            }
+        }
+    };
+};
+
