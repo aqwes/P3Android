@@ -1,3 +1,7 @@
 # P3Android
+This app is playing the current song on a specified Radio channel on Spotify and gathering information about from LastFM
 
-Android app 
+Three different API:s for getting information:
+*LastFM
+*Spotify
+*SRRadio
